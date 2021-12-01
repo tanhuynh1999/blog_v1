@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!--Ckeditor-->
+    <script src="https://cdn.jsdelivr.net/npm/w-ckeditor-vue@1.0.1/dist/w-ckeditor-vue.umd.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/31.0.0/classic/translations/vi.js"></script>
+    <script src="/script/ckeditor/ckeditor.js"></script>
+    <style>
+        p img {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <div id="default"></div>
+    <script src="/script/default.js"></script>
+    <div id="app">
+        <v-app>
+            <v-app-bar app clipped-right flat height="72">
+                <v-spacer>
+                    {{> create_blog}}
+                </v-spacer>
+
+                <v-responsive max-width="156">
+
+                </v-responsive>
+            </v-app-bar>
+
+            <v-navigation-drawer v-model="drawer" app width="300">
+                <v-navigation-drawer v-model="drawer" absolute color="grey lighten-3" mini-variant>
+                    <v-avatar class="d-block text-center mx-auto mt-4" color="grey darken-1" size="36"></v-avatar>
+
+                    <v-divider class="mx-3 my-5"></v-divider>
+
+                    <v-avatar v-for="n in 6" :key="n" class="d-block text-center mx-auto mb-9" color="grey lighten-1"
+                        size="28">
+                    </v-avatar>
+                </v-navigation-drawer>
+
+                <v-sheet color="grey lighten-5" height="72" width="100%">
+                    <center style="line-height: 72px;">
+                        <h1 class="ml-5">BlogVietNam.VN</h1>
+                    </center>
+                </v-sheet>
+
+                {{> menu}}
+            </v-navigation-drawer>
+
+            <v-navigation-drawer width="300" app clipped right>
+                {{> login}}
+            </v-navigation-drawer>
+
+            <v-main>
+                <v-snackbar v-model="snackbar" top>
+                    <v-icon size="17"
+                        :color="messageSanackbar == 'warning' ? '#EF6C00' : messageSanackbar == 'error' ? '#C62828' : '#2E7D32'"
+                        v-text="messageSanackbar == 'warning' ? 'fa-exclamation-circle' : messageSanackbar == 'error' ? 'fa-times-circle' : 'fa-check-circle'">
+                    </v-icon>
+                    <span
+                        v-text="messageSanackbar == 'warning' ? 'Cảnh báo: ' : messageSanackbar == 'error' ? 'Lỗi: ' : 'Thành công: '"></span>
+                    <span v-text="textSnackbar"></span>
+                    <template v-slot:action="{ attrs }">
+                        <v-btn color="white" text v-bind="attrs" v-on:click="snackbar = false">
+                            Đóng
+                        </v-btn>
+                    </template>
+                </v-snackbar>
+                {{{body}}}
+            </v-main>
+        </v-app>
+    </div>
+</body>
+
+</html>

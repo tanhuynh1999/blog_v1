@@ -1,0 +1,141 @@
+<v-card height="100%">
+    <v-img class="white--text align-end" height="100" src="https://vuighe.net/assets/img/navbar-user-header.jpg">
+        <v-card-title v-if="userMain === null">
+            <h4 style="color: black;"><span v-text="userForm.title"></span> viết blog</h4>
+            <v-tabs fixed-tabs>
+                <v-tab v-for="(item,i) in userForm.tab" :key="i" @click="tabUserForm(item.value)">
+                    <span v-text=item.name></span>
+                </v-tab>
+            </v-tabs>
+        </v-card-title>
+        <v-card-title v-if="userMain !== null">
+            <h4 style="color: black;">Xin chào: <b v-text="userMain.nameView"></b></h4>
+            <v-btn @click="signOut" text style="margin-left: -5%;">
+                <v-icon>fa-sign-out-alt</v-icon>
+                Đăng xuất
+            </v-btn>
+        </v-card-title>
+    </v-img>
+    <v-card-text>
+        <div v-if="userMain === null">
+            <div v-if="userForm.isLogin">
+                <v-form v-model="login.valid" ref="loginForm">
+                    <v-text-field :rules="loginForm.validate.userName" v-model="loginForm.value.userName" dense
+                        prepend-inner-icon="fa-user" label="Tên đăng nhập" outlined>
+                    </v-text-field>
+                    <v-text-field :rules="loginForm.validate.password" v-model="loginForm.value.password" dense
+                        prepend-inner-icon="fa-key" label="Mật khẩu" outlined>
+                    </v-text-field>
+                    <v-checkbox label="Nhớ mật khẩu"></v-checkbox>
+                    <v-btn @click="login()" color="secondary" elevation="2" block>
+                        Đăng nhập
+                    </v-btn>
+                </v-form>
+            </div>
+            <div v-if="!userForm.isLogin">
+                <v-form v-model="userForm.valid" ref="userForm">
+                    <v-text-field :rules="userForm.validate.userName" v-model="userForm.value.userName" dense
+                        :counter="100" prepend-inner-icon="fa-user" label="Tên đăng nhập" outlined>
+                    </v-text-field>
+                    <v-text-field :counter="100" :rules="userForm.validate.nameView" v-model="userForm.value.nameView"
+                        dense prepend-inner-icon="fa-eye" label="Tên hiển thị" outlined>
+                    </v-text-field>
+                    <v-text-field :counter="100" :rules="userForm.validate.email" v-model="userForm.value.email" dense
+                        prepend-inner-icon="fa-envelope" label="Email" outlined>
+                    </v-text-field>
+                    <v-text-field :append-icon="userForm.show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="userForm.show1 ? 'text' : 'password'" :rules="userForm.validate.password"
+                        v-model="userForm.value.password" @click:append="userForm.show1 = !userForm.show1" dense
+                        prepend-inner-icon="fa-key" label="Mật khẩu" outlined>
+                    </v-text-field>
+                    <v-text-field dense prepend-inner-icon="fa-keyboard" label="Nhập lại mật khẩu" outlined>
+                    </v-text-field>
+                    <v-btn @click="register" color="secondary" elevation="2" block>
+                        Đăng ký
+                    </v-btn>
+                </v-form>
+            </div>
+            <v-divider class="mt-5"></v-divider>
+            <v-btn color="indigo" dark class="mt-3" elevation="2" block>
+                <v-icon>fab fa-facebook</v-icon>
+                <span class="ml-2">Đăng nhập với facebook</span>
+            </v-btn>
+            <v-btn color="error" class="mt-3" elevation="2" block>
+                <v-icon>fa-envelope</v-icon>
+                <span class="ml-2">Đăng nhập với google</span>
+            </v-btn>
+        </div>
+        <div v-if="userMain !== null">
+            <v-list two-line subheader>
+                <v-list-item>
+                    <v-list-item-content>
+                        <v-list-item-title>
+                            <i class="fa fa-user"></i>
+                            Thông tin cá nhân
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                            <div>Email: <span v-text="userMain.email"></span></div>
+                            <div>Tên hiển thị: <span v-text="userMain.nameView"></span></div>
+                            <div>Tài khoản: <span v-text="userMain.userName"></span></div>
+                            <div>Ngày tạo: <span v-text="userMain.dateCreate"></span></div>
+                            <div>
+                                Trạng thái:
+                                <span v-if="userMain.active" style="color: #1B5E20">Hoạt động</span>
+                                <span v-if="!userMain.active" style="color: #B71C1C">Không hoạt động</span>
+                            </div>
+                            <a><i class="fa fa-edit">&nbsp;</i>Sửa thông tin cá nhân</a>
+                        </v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-list-item>
+
+                <v-list-item>
+                    <v-list-item-content>
+                        <v-list-item-title>
+                            <i class="fa fa-newspaper"></i>
+                            Blog của bạn
+                        </v-list-item-title>
+                        <v-list-item-subtitle>Lưu trữ những bài blog của bạn</v-list-item-subtitle>
+                        <v-list-item-subtitle>
+                            <v-btn elevation="2" block>Blog đã đánh dấu</v-btn>
+                        </v-list-item-subtitle>
+                        <v-list-item-subtitle>
+                            <v-btn elevation="2" block>Blog đã đăng</v-btn>
+                        </v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-list-item>
+
+                <v-list-item>
+                    <v-list-item-content>
+                        <v-list-item-title>
+                            <i class="fa fa-comment"></i>
+                            Bình luận
+                        </v-list-item-title>
+                        <v-list-item-subtitle>Lịch sử phản hồi và bình luận của bạn</v-list-item-subtitle>
+                        <v-list-item-subtitle>
+                            <v-btn elevation="2" block>Lịch sử bình luận</v-btn>
+                        </v-list-item-subtitle>
+                        <v-list-item-subtitle>
+                            <v-btn elevation="2" block>Lịch sử phản hồi</v-btn>
+                        </v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-list-item>
+
+                <v-list-item>
+                    <v-list-item-content>
+                        <v-list-item-title>
+                            <i class="fa fa-history"></i>
+                            Lịch sử
+                        </v-list-item-title>
+                        <v-list-item-subtitle>Lịch sử xem blog + lịch sử hoạt động</v-list-item-subtitle>
+                        <v-list-item-subtitle>
+                            <v-btn elevation="2" block>Blog đã xem</v-btn>
+                        </v-list-item-subtitle>
+                        <v-list-item-subtitle>
+                            <v-btn elevation="2" block>Hoạt động cá nhân</v-btn>
+                        </v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-list-item>
+            </v-list>
+        </div>
+    </v-card-text>
+</v-card>
