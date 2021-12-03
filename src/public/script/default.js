@@ -98,6 +98,49 @@ const defaultConnect = new Vue({
                     tag: ['Gaming', 'Programming', 'Vue', 'Vuetify']
                 }
             },
+            menuMain: [{
+                    icon: 'fa-newspaper',
+                    name: 'Bài blog mới nhất',
+                    link: '/',
+                    active: false
+                },
+                {
+                    icon: 'fab fa-hotjar',
+                    name: 'Bài blog hot nhất',
+                    link: '/blog/blog_hot_nhat',
+                    active: false
+                },
+                {
+                    icon: 'fa-list',
+                    name: 'Các danh mục blog',
+                    link: '/',
+                    active: false
+                },
+                {
+                    icon: 'fa-user-plus',
+                    name: 'Blog của bạn',
+                    link: '/blog/blog_da_dang',
+                    active: false
+                },
+                {
+                    icon: 'fa-bookmark',
+                    name: 'Bài blog đánh dấu',
+                    link: '/blog/blog_dang_theo_doi',
+                    active: false
+                },
+                {
+                    icon: 'fa-comment',
+                    name: 'Bình luận của bạn',
+                    link: '/blog/binh_luan_cua_ban',
+                    active: false
+                },
+                {
+                    icon: 'fa-reply',
+                    name: 'Phản hồi của bạn',
+                    link: '/blog/phan_hoi_cua_ban',
+                    active: false
+                }
+            ],
             userMain: {},
             drawer: false,
         }

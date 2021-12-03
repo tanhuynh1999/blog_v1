@@ -1,0 +1,53 @@
+<v-container>
+    <v-card outlined link v-for="(item, i) in blogList.blog" :key="i" class="mt-1"
+        :href="blogList.linkDetails + item._id + '/' + item.title">
+        <v-container>
+            <v-row>
+                <v-col sm="9">
+                    <v-list-item>
+                        <v-list-item-content>
+                            <v-list-item-title>
+                                <v-avatar size="40">
+                                    <img :src="item.avatar" alt="John">
+                                </v-avatar>
+                                <span style="font-size: 15px">Tác giả: <span v-text="item.author"></span></span>
+                            </v-list-item-title>
+                            <v-row align="center" class="mx-0 mt-1">
+                                <v-rating :value="4.5" color="amber" dense half-increments readonly size="14">
+                                </v-rating>
+                                <div class="grey--text ms-4" v-text="item.dateEdit">
+
+                                </div>
+                            </v-row>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-card-title style="font-size: 14px">
+                        <span v-text="item.title"></span>
+                    </v-card-title>
+                    <v-card-text>
+                        <i style="color: #B71C1C" v-text="item.category"></i>
+                        <div v-text="item.describe"></div>
+
+                        <div class="my-4 text-subtitle-1">
+                            <v-chip-group active-class="primary--text" column>
+                                <v-chip small>
+                                    Công nghệ
+                                </v-chip>
+                                <v-chip small>
+                                    Công nghệ
+                                </v-chip>
+                            </v-chip-group>
+                        </div>
+                    </v-card-text>
+                </v-col>
+                <v-col cols="12" sm="3">
+                    <v-avatar class="ma-3" size="125" tile>
+                        <v-img width="100%" :src="item.image">
+                        </v-img>
+                    </v-avatar>
+                </v-col>
+            </v-row>
+        </v-container>
+    </v-card>
+</v-container>
+<script src="/script/blog/index_hot.js"></script>

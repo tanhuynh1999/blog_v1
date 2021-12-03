@@ -8,11 +8,57 @@ const app = new Vue({
             tabList: {
                 tab: []
             },
+            follow: {},
+            replyList: {
+                comment: {
+                    _id: '',
+                    idBlog: '',
+                    content: '',
+                    author: '',
+                    avatar: '',
+                    dateCreate: '',
+                    dateEdit: '',
+                    idUser: ''
+                },
+                reply: [],
+                count: null
+            },
+            commentList: {
+                comment: [],
+                count: null
+            },
+            commentForm: {
+                valid: null,
+                value: {
+                    content: ''
+                },
+                validate: {
+                    content: [
+                        v => !!v || 'Nội dung bình luận không được để trống',
+                        v => v.length < 800 || 'Nội dung không vượt quá 800 ký tự',
+                    ],
+                }
+            },
+            replyForm: {
+                valid: null,
+                value: {
+                    content: ''
+                },
+                validate: {
+                    content: [
+                        v => !!v || 'Nội dung phản hồi không được để trống',
+                        v => v.length < 800 || 'Nội dung không vượt quá 800 ký tự',
+                    ],
+                }
+            },
+            dialogBookBlog: false,
+            dialogReply: false,
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
             blogForm: defaultConnect.blogForm,
             loginForm: defaultConnect.loginForm,
+            menuMain: defaultConnect.menuMain,
             configCkEditor: defaultConnect.configCkEditor,
             dialogCreateBlog: false,
             snackbar: false,
@@ -25,10 +71,30 @@ const app = new Vue({
         this.loadDetails();
         //!------------------------
         this.loadUser();
+        this.loadComment(this.takeLink());
+        this.loadTab(this.takeLink());
     },
     methods: {
+        clickReply(comment) {
+            let that = this;
+            that.dialogReply = true;
+            that.replyList.comment._id = comment._id;
+            that.replyList.comment.idBlog = comment.idBlog;
+            that.replyList.comment.content = comment.content;
+            that.replyList.comment.author = comment.author;
+            that.replyList.comment.avatar = comment.avatar;
+            that.replyList.comment.dateCreate = comment.dateCreate;
+            that.replyList.comment.dateEdit = comment.dateEdit;
+            that.replyList.comment.idUser = comment.idUser;
+            that.loadReply(comment._id);
+        },
         goBack() {
             window.history.back();
+        },
+        takeLink() {
+            let url = location.pathname;
+            let arrUrl = url.split('/');
+            return arrUrl[3];
         },
         loadDetails() {
             let that = this;
@@ -36,7 +102,25 @@ const app = new Vue({
             axios.post(link)
                 .then(function (response) {
                     that.item = response.data.data;
-                    that.loadTab(response.data.data._id);
+                    this.loadFollowByID(response.data.data._id);
+                })
+        },
+        loadComment(id) {
+            let that = this;
+            const link = '/blog/comment/get/' + id;
+            axios.get(link)
+                .then(function (response) {
+                    that.commentList.comment = response.data.data;
+                    that.commentList.count = response.data.data.length;
+                })
+        },
+        loadReply(id) {
+            let that = this;
+            const link = '/blog/reply/get/' + id;
+            axios.get(link)
+                .then(function (response) {
+                    that.replyList.reply = response.data.data;
+                    that.replyList.count = response.data.data.length;
                 })
         },
         loadTab(id) {
@@ -45,8 +129,100 @@ const app = new Vue({
             axios.get(link)
                 .then(function (response) {
                     that.tabList.tab = response.data.data;
-                    console.log(that.tabList.tab);
                 })
+        },
+        loadFollowByID(idBlog) {
+            let that = this;
+            const link = '/blog/follow/by/' + idBlog;
+            axios.get(link)
+                .then(function (response) {
+                    that.follow = response.data.data;
+                })
+        },
+        followBlog(item) {
+            let that = this;
+            const link = '/blog/follow';
+            const data = JSON.parse(JSON.stringify(item));
+
+            axios.post(link, null, {
+                    params: data
+                })
+                .then(function (response) {
+                    // handle success
+                    if (response.data.status) {
+                        that.checkSnackbar(true, response.data.messenger, null);
+                        that.loadFollowByID(item._id);
+                    }
+                })
+        },
+        deleteFollowBlog(id) {
+            let that = this;
+            const link = '/blog/follow/delete/' + id;
+
+            axios.post(link)
+                .then(function (response) {
+                    // handle success
+                    console.log(response);
+                    if (response.data.status) {
+                        that.checkSnackbar(true, response.data.messenger, null);
+                        location.reload();
+                    }
+                })
+        },
+        commentBlog(item) {
+            let that = this;
+            const valid = that.$refs.commentForm.validate();
+            if (valid) {
+                const link = '/blog/comment';
+
+                axios.post(link, null, {
+                        params: {
+                            idBlog: item._id,
+                            avatar: that.userMain.image,
+                            author: that.userMain.nameView,
+                            content: that.commentForm.value.content,
+                            titleBlog: item.title
+                        }
+                    })
+                    .then(function (response) {
+                        // handle success
+                        if (response.data.status) {
+                            that.checkSnackbar(true, response.data.message, null);
+                            that.loadComment(item._id);
+                            that.$refs.commentForm.reset();
+                        }
+                    })
+            }
+            return false;
+        },
+        replyBlog(item) {
+            let that = this;
+            const valid = that.$refs.replyForm.validate();
+            if (valid) {
+                const link = '/blog/reply';
+
+                axios.post(link, null, {
+                        params: {
+                            idBlog: item._id,
+                            avatar: that.userMain.image,
+                            author: that.userMain.nameView,
+                            content: that.replyForm.value.content,
+                            idComment: that.replyList.comment._id,
+                            titleBlog: item.title,
+                            contentComment: that.replyList.comment.content
+                        }
+                    })
+                    .then(function (response) {
+                        // handle success
+                        if (response.data.status) {
+                            that.checkSnackbar(true, response.data.message, null);
+                            that.loadComment(item._id);
+                            that.$refs.replyForm.reset();
+                            that.loadReply(that.replyList.comment._id);
+                        }
+                    })
+            }
+            return false;
         },
         //!------------------------
         loadUser() {
@@ -100,7 +276,7 @@ const app = new Vue({
                         // handle success
                         console.log(response);
                         if (response.data.status) {
-                            location.reload();
+                            document.location.href = '/blog/blog_da_dang';
                         }
                     })
             }

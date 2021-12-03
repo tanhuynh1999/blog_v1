@@ -4,11 +4,17 @@ const app = new Vue({
     vuetify: new Vuetify(),
     data() {
         return {
-            blogList: {
+            commentList: {
                 linkDetails: '/blog/details/',
-                blog: []
+                comment: [],
+                count: null
             },
-            titlePage: 'Bài blog mới nhất',
+            replyList: {
+                reply: [],
+                count: null
+            },
+            titlePage: 'Bình luận của bạn',
+            dialogReply: false,
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
@@ -24,19 +30,34 @@ const app = new Vue({
         }
     },
     mounted() {
-        this.loadBlog();
+        this.loadCommentBlog();
         //!------------------------
         this.loadUser();
         this.checkMenu();
     },
     methods: {
-        loadBlog() {
+        clickShowReply(item) {
             let that = this;
-            const link = '/blog/get/index';
+            that.dialogReply = true;
+            that.loadReply(item._id);
+        },
+        loadCommentBlog() {
+            let that = this;
+            const link = '/blog/comment/getbyuser';
             axios.get(link)
                 .then(function (response) {
                     console.log(response.data.data);
-                    that.blogList.blog = response.data.data;
+                    that.commentList.comment = response.data.data;
+                    that.commentList.count = response.data.data.length;
+                })
+        },
+        loadReply(id) {
+            let that = this;
+            const link = '/blog/reply/get/' + id;
+            axios.get(link)
+                .then(function (response) {
+                    that.replyList.reply = response.data.data;
+                    that.replyList.count = response.data.data.length;
                 })
         },
         //!------------------------

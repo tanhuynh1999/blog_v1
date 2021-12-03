@@ -1,6 +1,18 @@
 <v-container>
     <v-btn @click="goBack" elevation="2" raised rounded><i class="fa fa-arrow-alt-circle-left"></i>Trở về</v-btn>
-    <h1 v-text="item.title"></h1>
+    <h1>
+        <span v-text="item.title"></span>
+        <span v-if="userMain !== null">
+            <span v-if="item.idAuthor != userMain._id">
+                <v-btn @click="deleteFollowBlog(follow._id, item)" icon v-if="follow._id != null">
+                    <v-icon>fa-bookmark</v-icon>
+                </v-btn>
+                <v-btn @click="followBlog(item)" v-if="follow._id == null" icon>
+                    <v-icon>far fa-bookmark</v-icon>
+                </v-btn>
+            </span>
+        </span>
+    </h1>
     <p>
         <span style="color:#B71C1C" v-text="item.category"></span> |
         Lượt xem: <span v-text="item.view"></span>
@@ -14,7 +26,13 @@
                     </v-avatar>
                 </v-col>
                 <v-col sm="8">
-                    <p>
+                    <p v-if="userMain !== null">
+                        Xuất bản lúc <span v-text="item.dateEdit"></span>
+                        <br>
+                        Tác giả: <span v-text=" item.author"></span> <b v-if="item.idAuthor == userMain._id"
+                            style="color:#B71C1C">(Bạn chính là tác giả)</b>
+                    </p>
+                    <p v-if="userMain === null">
                         Xuất bản lúc <span v-text="item.dateEdit"></span>
                         <br>
                         Tác giả: <span v-text="item.author"></span>
@@ -38,49 +56,47 @@
             </v-row>
             <v-divider></v-divider>
             <div class="mt-5">
-
                 <v-list>
                     <template>
                         <v-list-item v-if="userMain === null">
                             Hãy đăng nhập để bình luận?
                         </v-list-item>
-                        <v-list-item v-if="userMain !== null">
+                        <v-form v-model="commentForm.valid" ref="commentForm" v-if="userMain !== null">
+                            <v-list-item>
+                                <v-list-item-avatar>
+                                    <v-img :src="userMain.image"></v-img>
+                                </v-list-item-avatar>
+
+                                <v-list-item-content>
+                                    <v-text-field :counter="800" :rules="commentForm.validate.content"
+                                        v-model="commentForm.value.content" style="width: 100%"
+                                        label="Nhập nội dung bình luận của bạn"
+                                        :hint="'Hãy bình luận 1 cách văn minh cho bài viết - ' + item.title">
+                                    </v-text-field>
+                                </v-list-item-content>
+                                <v-btn @click="commentBlog(item)" class="float-right ml-2" elevation="2" dark
+                                    color="#0D47A1">
+                                    Bình luận</v-btn>
+                            </v-list-item>
+                        </v-form>
+                        <v-container v-if="userMain !== null">
+                            <h3 v-if="commentList.count == 0">Hãy là người bình luận đầu tiên</h3>
+                        </v-container>
+                        <v-list-item link v-for="(comment, i) in commentList.comment" :key="i">
                             <v-list-item-avatar>
-                                <v-img :src="userMain.image"></v-img>
+                                <v-img :src="comment.avatar"></v-img>
                             </v-list-item-avatar>
 
                             <v-list-item-content>
-                                <v-text-field style="width: 100%" label="Nhập nội dung bình luận của bạn"
-                                    :hint="'Hãy bình luận 1 cách văn minh cho bài viết - ' + item.title">
-                                </v-text-field>
-                            </v-list-item-content>
-                            <v-btn class="float-right ml-2" elevation="2" dark color="#0D47A1">
-                                Bình luận</v-btn>
-                        </v-list-item>
-                        <v-list-item link>
-                            <v-list-item-avatar>
-                                <v-img :src="item.avatar"></v-img>
-                            </v-list-item-avatar>
-
-                            <v-list-item-content>
-                                <v-list-item-title><b>tanhuynh</b> 9 tháng trước</v-list-item-title>
-                                <v-list-item-subtitle style="color: black; font-size: 18px">
-                                    Từ bản Việt qua đây mới biết Heri diễn đẳng cấp thế nào :))
-                                </v-list-item-subtitle>
-                                <a>PHẢN HỒI</a>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item link>
-                            <v-list-item-avatar>
-                                <v-img :src="item.avatar"></v-img>
-                            </v-list-item-avatar>
-
-                            <v-list-item-content>
-                                <v-list-item-title><b>tanhuynh</b> 9 tháng trước</v-list-item-title>
-                                <v-list-item-subtitle style="color: black; font-size: 18px">
-                                    Từ bản Việt qua đây mới biết Heri diễn đẳng cấp thế nào :))
-                                </v-list-item-subtitle>
-                                <a>PHẢN HỒI</a>
+                                <v-list-item-title>
+                                    <span v-if="comment.idUser === item.idAuthor" style="color:#B71C1C">(Tác
+                                        giả)&nbsp;</span>
+                                    <b v-text="comment.author"></b>
+                                    <span v-text="comment.dateEdit"></span>
+                                </v-list-item-title>
+                                <span v-text="comment.content"></span>
+                                <a @click="clickReply(comment)" style="margin-top: 5px; font-size: 12px">PHẢN HỒI
+                                    (0)</a>
                             </v-list-item-content>
                         </v-list-item>
                     </template>
@@ -119,4 +135,69 @@
         </v-col>
     </v-row>
 </v-container>
+<v-dialog v-model="dialogReply" width="600px">
+    <v-card>
+        <v-card-title>
+            <span class="text-h5">Phản hồi từ bình luận của <b v-text="replyList.comment.author"></b></span>
+        </v-card-title>
+        <v-card-text style="background-color: #80CBC4;">
+            <v-list-item link>
+                <v-list-item-avatar>
+                    <v-img :src="replyList.comment.avatar"></v-img>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                    <v-list-item-title>
+                        <span v-if="replyList.comment.idUser === item.idAuthor" style="color:#B71C1C">(Tác
+                            giả)&nbsp;</span>
+                        <b v-text="replyList.comment.author"></b>
+                        <span v-text="replyList.comment.dateEdit"></span>
+                    </v-list-item-title>
+                    <span style="color:white; font-size: 20px;" v-text="replyList.comment.content"></span>
+                </v-list-item-content>
+            </v-list-item>
+        </v-card-text>
+        <v-card-text>
+            <h3>Các câu trả lời</h3>
+            <p v-if="replyList.count == 0">Hãy là người phản hồi đầu tiên</p>
+            <v-list-item link v-for="(reply, i) in replyList.reply" :key="i">
+                <v-list-item-avatar>
+                    <v-img :src="reply.avatar"></v-img>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                    <v-list-item-title>
+                        <span v-if="reply.idUser === item.idAuthor" style="color:#B71C1C">(Tác
+                            giả)&nbsp;</span>
+                        <b v-text="reply.author"></b>
+                        <span v-text="reply.dateEdit"></span>
+                    </v-list-item-title>
+                    <span v-text="reply.content"></span>
+                </v-list-item-content>
+            </v-list-item>
+        </v-card-text>
+        <v-card-actions>
+            <v-list-item>
+                <span v-if="userMain === null">Hãy đăng nhập để phản hồi?</span>
+                <v-form style="width: 100%" v-if="userMain !== null" v-model="replyForm.valid" ref="replyForm">
+                    <v-list-item>
+                        <v-list-item-avatar>
+                            <v-img :src="userMain.image"></v-img>
+                        </v-list-item-avatar>
+
+                        <v-list-item-content>
+                            <v-text-field :counter="800" :rules="replyForm.validate.content"
+                                v-model="replyForm.value.content" style="width: 100% !important"
+                                :label="'Phản hồi từ bình luận của ' + replyList.comment.author"
+                                :hint="'Hãy bình luận 1 cách văn minh cho phản hồi của - ' + replyList.comment.author">
+                            </v-text-field>
+                        </v-list-item-content>
+                        <v-btn @click="replyBlog(item)" class="float-right ml-2" elevation="2" dark color="#0D47A1">
+                            Phản hồi</v-btn>
+                    </v-list-item>
+                </v-form>
+            </v-list-item>
+        </v-card-actions>
+    </v-card>
+</v-dialog>
 <script src="/script/blog/details.js"></script>

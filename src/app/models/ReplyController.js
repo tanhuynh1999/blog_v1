@@ -1,27 +1,22 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const Blog = new Schema({
-    title: {
+const Reply = new Schema({
+    idBlog: {
         type: String,
         required: true
     },
-    describe: {
+    idComment: {
         type: String,
-        default: 'Không có mô tả',
+        required: true
+    },
+    idUser: {
+        type: String,
         required: true
     },
     content: {
         type: String,
-        required: true
-    },
-    image: {
-        type: String,
-        default: '/content/images/no-image.png',
-        required: true
-    },
-    category: {
-        type: String,
+        maxLength: 800,
         required: true
     },
     dateCreate: {
@@ -29,28 +24,9 @@ const Blog = new Schema({
         default: Date.now,
         required: true
     },
-    view: {
-        type: Number,
-        default: 1
-    },
-    bin: {
-        type: Boolean,
-        default: false,
-        required: true
-    },
-    delete: {
-        type: Boolean,
-        default: false,
-        required: true
-    },
     dateEdit: {
         type: Date,
         default: Date.now,
-        required: true
-    },
-    active: {
-        type: Boolean,
-        default: true,
         required: true
     },
     author: {
@@ -61,10 +37,14 @@ const Blog = new Schema({
         type: String,
         required: true
     },
-    idAuthor: {
+    titleBlog: {
+        type: String,
+        required: true
+    },
+    contentComment: {
         type: String,
         required: true
     }
 });
 
-module.exports = mongoose.model("Blog", Blog)
+module.exports = mongoose.model("Reply", Reply)

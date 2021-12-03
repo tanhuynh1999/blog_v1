@@ -6,14 +6,36 @@ const app = new Vue({
         return {
             blogList: {
                 linkDetails: '/blog/details/',
+                countBlog: '',
                 blog: []
             },
-            titlePage: 'Bài blog mới nhất',
+            tabMain: {
+                tab: [{
+                        tab: 'Tất cả',
+                        value: 'all'
+                    },
+                    {
+                        tab: 'Ngưng hoạt động',
+                        value: 'no_active'
+                    },
+                    {
+                        tab: 'Thùng rác',
+                        value: 'bin'
+                    }
+                ]
+            },
+            titlePage: 'Blog của bạn',
+            isLoadingBlog: true,
+            dialogEditBlog: false,
+            idBlog: null,
+            tabModel: null,
+            isActiveAll: false,
+            isActiveNo: false,
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
-            menuMain: defaultConnect.menuMain,
             blogForm: defaultConnect.blogForm,
+            menuMain: defaultConnect.menuMain,
             loginForm: defaultConnect.loginForm,
             configCkEditor: defaultConnect.configCkEditor,
             dialogCreateBlog: false,
@@ -24,19 +46,115 @@ const app = new Vue({
         }
     },
     mounted() {
-        this.loadBlog();
+        this.tab('');
         //!------------------------
         this.loadUser();
         this.checkMenu();
     },
     methods: {
-        loadBlog() {
+        tab(value) {
             let that = this;
-            const link = '/blog/get/index';
+            if (value == 'no_active') {
+                that.clearTab();
+                that.isActiveNo = true;
+                that.loadBlog('no_active');
+            } else if (value == 'bin') {
+                that.loadBlog('bin');
+            } else {
+                that.clearTab();
+                that.isActiveAll = true;
+                that.loadBlog('user');
+            }
+        },
+        clearTab() {
+            let that = this;
+            that.isActiveNo = false;
+            that.isActiveAll = false;
+        },
+        clickEditBlog(item) {
+            let that = this;
+            that.dialogEditBlog = true;
+            that.blogForm.value = JSON.parse(JSON.stringify(item));
+            that.blogForm.title = 'Sửa bài blog - ' + item.title;
+            that.blogForm.imgSrc = item.image;
+            that.blogForm.value.image = null;
+            that.idBlog = item._id;
+        },
+        loadBlog(value) {
+            let that = this;
+            that.isLoadingBlog = true;
+            const link = '/blog/get/' + value;
             axios.get(link)
                 .then(function (response) {
                     console.log(response.data.data);
                     that.blogList.blog = response.data.data;
+                    that.blogList.countBlog = response.data.data.length;
+                    that.isLoadingBlog = false;
+                })
+        },
+        editBlog() {
+            let that = this;
+            const valid = that.$refs.blogForm.validate();
+            if (valid) {
+                const link = '/blog/edit';
+                const data = JSON.parse(JSON.stringify(that.blogForm.value));
+
+                axios.post(link, null, {
+                        params: data
+                    })
+                    .then(function (response) {
+                        // handle success
+                        console.log(response);
+                        if (response.data.status) {
+                            that.checkSnackbar(true, response.data.messenger, null);
+                            that.dialogEditBlog = false;
+                            that.tabModel = 0;
+                            that.tab('user');
+                        }
+                    })
+            }
+            return false;
+        },
+        activeBlog(item, common) {
+            let that = this;
+            const link = '/blog/active/' + item._id + '/' + item.active;
+
+            axios.post(link)
+                .then(function (response) {
+                    // handle success
+                    console.log(response);
+                    if (response.data.status) {
+                        that.checkSnackbar(true, response.data.messenger, null);
+                        that.tab(common);
+                    }
+                })
+        },
+        binBlog(item, common) {
+            let that = this;
+            const link = '/blog/bin/' + item._id + '/' + item.bin;
+
+            axios.post(link)
+                .then(function (response) {
+                    // handle success
+                    console.log(response);
+                    if (response.data.status) {
+                        that.checkSnackbar(true, response.data.messenger, null);
+                        that.tab(common);
+                    }
+                })
+        },
+        deleteBlog(item) {
+            let that = this;
+            const link = '/blog/delete/' + item._id;
+
+            axios.post(link)
+                .then(function (response) {
+                    // handle success
+                    console.log(response);
+                    if (response.data.status) {
+                        that.checkSnackbar(true, response.data.messenger, null);
+                        that.tab('bin');
+                    }
                 })
         },
         //!------------------------
@@ -127,7 +245,8 @@ const app = new Vue({
                             that.checkSnackbar(true, response.data.messenger, null);
                             that.dialogCreateBlog = false;
                             that.$refs.blogForm.reset();
-                            that.loadBlog();
+                            that.tabModel = 0;
+                            that.tab('user');
                         }
                     })
             }

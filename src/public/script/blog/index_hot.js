@@ -8,12 +8,12 @@ const app = new Vue({
                 linkDetails: '/blog/details/',
                 blog: []
             },
-            titlePage: 'Bài blog mới nhất',
+            titlePage: 'Bài blog hot nhất',
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
-            menuMain: defaultConnect.menuMain,
             blogForm: defaultConnect.blogForm,
+            menuMain: defaultConnect.menuMain,
             loginForm: defaultConnect.loginForm,
             configCkEditor: defaultConnect.configCkEditor,
             dialogCreateBlog: false,
@@ -32,7 +32,7 @@ const app = new Vue({
     methods: {
         loadBlog() {
             let that = this;
-            const link = '/blog/get/index';
+            const link = '/blog/get/hot';
             axios.get(link)
                 .then(function (response) {
                     console.log(response.data.data);

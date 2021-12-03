@@ -8,7 +8,8 @@ const app = new Vue({
                 linkDetails: '/blog/details/',
                 blog: []
             },
-            titlePage: 'Bài blog mới nhất',
+            titlePage: 'Bài blog đánh dấu',
+            countBlog: null,
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
@@ -24,19 +25,34 @@ const app = new Vue({
         }
     },
     mounted() {
-        this.loadBlog();
+        this.loadFollowBlog();
         //!------------------------
         this.loadUser();
         this.checkMenu();
     },
     methods: {
-        loadBlog() {
+        loadFollowBlog() {
             let that = this;
-            const link = '/blog/get/index';
+            const link = '/blog/follow/get';
             axios.get(link)
                 .then(function (response) {
                     console.log(response.data.data);
                     that.blogList.blog = response.data.data;
+                    that.countBlog = response.data.data.length;
+                })
+        },
+        deleteFollowBlog(id) {
+            let that = this;
+            const link = '/blog/follow/delete/' + id;
+
+            axios.post(link)
+                .then(function (response) {
+                    // handle success
+                    console.log(response);
+                    if (response.data.status) {
+                        that.checkSnackbar(true, response.data.messenger, null);
+                        that.loadFollowBlog();
+                    }
                 })
         },
         //!------------------------
@@ -127,7 +143,7 @@ const app = new Vue({
                             that.checkSnackbar(true, response.data.messenger, null);
                             that.dialogCreateBlog = false;
                             that.$refs.blogForm.reset();
-                            that.loadBlog();
+                            document.location.href = '/blog/blog_da_dang';
                         }
                     })
             }

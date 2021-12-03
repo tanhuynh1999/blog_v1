@@ -1,0 +1,160 @@
+<v-container v-if="userMain !== null">
+    <h2 v-text="titlePage"></h2>
+    <v-tabs v-model="tabModel" background-color="primary" dark>
+        <v-tab v-for="item in tabMain.tab" :key="item.tab" @click="tab(item.value)">
+            <span v-text="item.tab"></span>
+        </v-tab>
+    </v-tabs>
+    <v-card outlined class="mt-1" v-if="blogList.countBlog == 0 && !isLoadingBlog">
+        <v-img max-width="" max-height="500" src="/content/images/notdata.png"></v-img>
+    </v-card>
+    <h4 v-if="blogList.countBlog !== 0">Có tổng cộng <span v-text="blogList.countBlog"></span> blog</h4>
+    <div v-if="isLoadingBlog">
+        <v-skeleton-loader v-for="(item,i) in 5" :key="i" class="mx-auto" max-width="" type="card"></v-skeleton-loader>
+    </div>
+    <v-card outlined link v-for="(item, i) in blogList.blog" :key="i" class="mt-1">
+        <v-container>
+            <v-row>
+                <v-col sm="9">
+                    <v-list-item>
+                        <v-list-item-content>
+                            <v-list-item-title>
+                                <v-avatar size="40">
+                                    <img :src="item.avatar" alt="John">
+                                </v-avatar>
+                                <span style="font-size: 15px">Tác giả: <span v-text="item.author"></span></span>
+                            </v-list-item-title>
+                            <v-row align="center" class="mx-0 mt-1">
+                                <v-rating :value="4.5" color="amber" dense half-increments readonly size="14">
+                                </v-rating>
+                                <div class="grey--text ms-4" v-text="item.dateEdit">
+
+                                </div>
+                            </v-row>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-card-title style="font-size: 14px">
+                        <span v-text="item.title"></span>
+                    </v-card-title>
+                    <v-card-text>
+                        <i style="color: #B71C1C" v-text="item.category"></i>
+                        <div v-text="item.describe"></div>
+                        <div class="my-4 text-subtitle-1">
+                            <v-chip :href="blogList.linkDetails + item._id + '/' + item.title" small color="#311B92"
+                                dark>
+                                <i class="fa fa-edit"></i> &nbsp;
+                                Xem bài blog
+                            </v-chip>
+                            <v-chip small color="#004D40" dark @click="clickEditBlog(item)">
+                                <i class="fa fa-edit"></i> &nbsp;
+                                Sửa bài blog
+                            </v-chip>
+                            <v-chip small v-if="item.active && isActiveAll && !item.bin" color="#1B5E20" dark
+                                @click="activeBlog(item, 'user')">
+                                <i class="fa fa-check-circle"></i> &nbsp;
+                                Đang hoạt động
+                            </v-chip>
+                            <v-chip small v-if="!item.active && isActiveAll && !item.bin" color="#BF360C" dark
+                                @click="activeBlog(item, 'user')">
+                                <i class=" fa fa-times-circle"></i> &nbsp;
+                                Ngưng hoạt động
+                            </v-chip>
+                            <v-chip small v-if="item.active && isActiveNo && !item.bin" color="#1B5E20" dark
+                                @click="activeBlog(item, 'no_active')">
+                                <i class="fa fa-check-circle"></i> &nbsp;
+                                Đang hoạt động
+                            </v-chip>
+                            <v-chip small v-if="!item.active && isActiveNo && !item.bin" color="#BF360C" dark
+                                @click="activeBlog(item, 'no_active')">
+                                <i class=" fa fa-times-circle"></i> &nbsp;
+                                Ngưng hoạt động
+                            </v-chip>
+                            <v-chip @click="binBlog(item, 'user')" v-if="!item.bin && isActiveAll" small color="#B71C1C"
+                                dark>
+                                <i class="fa fa-trash"></i> &nbsp;
+                                Xoá vào thùng rác
+                            </v-chip>
+                            <v-chip @click="binBlog(item, 'no_active')" v-if="!item.bin && isActiveNo" small
+                                color="#B71C1C" dark>
+                                <i class="fa fa-trash"></i> &nbsp;
+                                Xoá vào thùng rác
+                            </v-chip>
+                            <v-chip @click="binBlog(item, 'bin')" v-if="item.bin" small color="#4A148C" dark>
+                                <i class="fa fa-trash"></i> &nbsp;
+                                Khôi phục
+                            </v-chip>
+                            <v-chip @click="deleteBlog(item)" v-if="item.bin" small color="#B71C1C" dark>
+                                <i class="fa fa-trash"></i> &nbsp;
+                                Xoá vĩnh viễn
+                            </v-chip>
+                        </div>
+                    </v-card-text>
+                </v-col>
+                <v-col cols="12" sm="3">
+                    <v-avatar class="ma-3" size="125" tile>
+                        <v-img width="100%" :src="item.image">
+                        </v-img>
+                    </v-avatar>
+                </v-col>
+            </v-row>
+        </v-container>
+    </v-card>
+    <v-dialog v-model="dialogEditBlog" persistent>
+        <v-card v-if="userMain !== null">
+            <v-card-title class="text-h5">
+                <span v-text="blogForm.title"></span>
+            </v-card-title>
+            <v-card-text>
+                <p v-text="blogForm.describe"></p>
+                <v-form v-model="blogForm.valid" ref="blogForm">
+                    <v-row sm="4">
+                        <v-col sm="4">
+                            <v-file-input @change="uploadImage" dense outlined accept="image/*"
+                                v-model="blogForm.value.image" label="Chọn ảnh khác">
+                            </v-file-input>
+                            <v-img max-height="250" max-width="100%" :src="blogForm.imgSrc">
+                            </v-img>
+                            <center class="mt-3" v-if="blogForm.isRemoteImage">
+                                <v-btn @click="remoteUploadImage">
+                                    Xoá hình ảnh
+                                </v-btn>
+                            </center>
+                        </v-col>
+                        <v-col sm="8">
+                            <v-text-field :rules="blogForm.validate.title" :counter="100" v-model="blogForm.value.title"
+                                dense outlined label="Tiêu đề blog" required>
+                            </v-text-field>
+                            <v-select :rules="blogForm.validate.category" dense outlined
+                                v-model="blogForm.value.category" :items="blogForm.select.category" label="Dạng blog">
+                            </v-select>
+                            <v-textarea dense outlined :rules="blogForm.validate.describe" :counter="2000"
+                                v-model="blogForm.value.describe" label="Mô tả về blog" required>
+                            </v-textarea>
+                            <w-ckeditor-vue style="width: 100%;" :settings="configCkEditor"
+                                v-model="blogForm.value.content"></w-ckeditor-vue>
+                            </w-ckeditor-vue>
+
+                            <v-btn @click="editBlog" elevation="2" dark color="#1A237E">
+                                Sửa blog
+                            </v-btn>
+                            <v-btn elevation="2" @click="clearBlogForm" dark color="#33691E">
+                                Làm mới
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </v-form>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" text @click="dialogEditBlog = false">
+                    Đóng
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+</v-container>
+<v-container v-if="userMain === null">
+    <h3>Trang này không được phép truy cập, hãy đăng nhập và khử lại.</h3>
+</v-container>
+
+<script src="/script/blog/index_user.js"></script>

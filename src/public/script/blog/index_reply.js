@@ -4,11 +4,12 @@ const app = new Vue({
     vuetify: new Vuetify(),
     data() {
         return {
-            blogList: {
+            replyList: {
                 linkDetails: '/blog/details/',
-                blog: []
+                reply: [],
+                count: null
             },
-            titlePage: 'Bài blog mới nhất',
+            titlePage: 'Phản hồi của bạn',
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
@@ -24,19 +25,20 @@ const app = new Vue({
         }
     },
     mounted() {
-        this.loadBlog();
+        this.loadReplyBlog();
         //!------------------------
         this.loadUser();
         this.checkMenu();
     },
     methods: {
-        loadBlog() {
+        loadReplyBlog() {
             let that = this;
-            const link = '/blog/get/index';
+            const link = '/blog/reply/getbyuser';
             axios.get(link)
                 .then(function (response) {
                     console.log(response.data.data);
-                    that.blogList.blog = response.data.data;
+                    that.replyList.reply = response.data.data;
+                    that.replyList.count = response.data.data.length;
                 })
         },
         //!------------------------

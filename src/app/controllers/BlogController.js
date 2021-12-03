@@ -1,6 +1,7 @@
 const blogModel = require('../models/BlogModel');
 const userModel = require('../models/UserModel');
 const tabBlogModel = require('../models/TabBlogModel');
+const followModel = require('../models/FollowModel');
 
 class BlogController {
 
@@ -9,24 +10,123 @@ class BlogController {
         res.render('blog/details');
     }
 
+    indexHot = (req, res) => {
+        res.render('blog/index_hot');
+    }
+
+    indexUser = (req, res) => {
+        res.render('blog/index_user');
+    }
+
+    indexFollow = (req, res) => {
+        res.render('blog/index_follow');
+    }
+
+    indexComment = (req, res) => {
+        res.render('blog/index_comment');
+    }
+
+    indexReply = (req, res) => {
+        res.render('blog/index_reply');
+    }
+
     getBlog = (req, res) => {
-        blogModel.find({
-            active: true,
+        if (req.params.common == "hot") {
+            blogModel.find({
+                bin: false,
+                active: true,
+                delete: false,
+            }, function (err, data) {
+                res.json({
+                    data: data,
+                    success: true
+                });
+            }).sort({
+                view: -1
+            })
+        } else if (req.params.common == "user") {
+            blogModel.find({
+                bin: false,
+                delete: false,
+                idAuthor: req.cookies.idUser
+            }, function (err, data) {
+                res.json({
+                    data: data,
+                    success: true
+                });
+            }).sort({
+                dateEdit: -1
+            })
+        } else if (req.params.common === "no_active") {
+            blogModel.find({
+                bin: false,
+                delete: false,
+                active: false,
+                idAuthor: req.cookies.idUser
+            }, function (err, data) {
+                res.json({
+                    data: data,
+                    success: true
+                });
+            }).sort({
+                dateEdit: -1
+            })
+        } else if (req.params.common == "bin") {
+            blogModel.find({
+                bin: true,
+                delete: false,
+                idAuthor: req.cookies.idUser
+            }, function (err, data) {
+                res.json({
+                    data: data,
+                    success: true
+                });
+            }).sort({
+                dateEdit: -1
+            })
+        } else {
+            blogModel.find({
+                active: true,
+                delete: false,
+            }, function (err, data) {
+                res.json({
+                    data: data,
+                    success: true
+                });
+            }).sort({
+                dateEdit: -1
+            })
+        }
+    }
+
+    getTabBlog = (req, res) => {
+        tabBlogModel.find({
+            idBlog: req.params.id
         }, function (err, data) {
             res.json({
                 data: data,
                 success: true
             });
         }).sort({
-            dateEdit: -1
+            name: 1
         })
     }
 
-    getTabBlog = (req, res) => {
-        console.log(req.params.id);
+    getByIDFollow = (req, res) => {
+        followModel.findOne({
+            idBlog: req.params.id,
+            idUser: req.cookies.idUser
+        }, function (err, data) {
+            res.json({
+                data: data,
+                success: true
+            });
+        })
+    }
 
-        tabBlogModel.find({
-            idBlog: req.params.id
+    getFollowBlog = (req, res) => {
+        followModel.find({
+            idUser: req.cookies.idUser
         }, function (err, data) {
             res.json({
                 data: data,
@@ -41,6 +141,8 @@ class BlogController {
 
     detailsBlog = (req, res) => {
         blogModel.findById(req.params.id, function (err, data) {
+            data.view = data.view + 1;
+            data.save();
             res.json({
                 data: data,
                 status: true
@@ -51,9 +153,8 @@ class BlogController {
 
     createBlog = (req, res) => {
         userModel.findById(req.cookies.idUser, function (err, data) {
-
             const blogNew = new blogModel(req.query);
-            blogNew.image = 'content/images/' + req.file.filename;
+            blogNew.image = '/content/images/' + req.file.filename;
             blogNew.idAuthor = req.cookies.idUser;
 
             blogNew.author = data.nameView;
@@ -71,6 +172,88 @@ class BlogController {
             res.json({
                 status: true,
                 messenger: 'Đăng blog ' + blogNew.title + ' thành công.'
+            });
+        })
+    }
+
+    editBlog = (req, res) => {
+        blogModel.findById(req.query._id, function (err, data) {
+
+            data.title = req.query.title;
+            data.category = req.query.category;
+            data.descibe = req.query.descibe;
+            data.content = req.query.content;
+            data.dateEdit = Date.now();
+            data.save();
+            res.json({
+                data: data,
+                status: true,
+                messenger: 'Sửa blog ' + data.title + ' thành công.'
+            });
+        })
+    }
+
+    activeBlog = (req, res) => {
+        blogModel.findById(req.params.id, function (err, data) {
+            data.active = !data.active;
+            data.save();
+            res.json({
+                data: data,
+                status: true,
+                messenger: data.active ? 'Bật hoạt động cho blog ' + data.title + ' thành công.' : 'Ngưng hoạt động cho blog' + data.title + ' thành công.'
+            });
+        })
+    }
+
+    binBlog = (req, res) => {
+        blogModel.findById(req.params.id, function (err, data) {
+            data.bin = !data.bin;
+            data.save();
+            res.json({
+                data: data,
+                status: true,
+                messenger: data.active ? 'Xoá blog ' + data.title + ' vào thùng rác thành công.' : 'Khôi phục blog ' + data.title + ' thành công.'
+            });
+        })
+    }
+
+    deleteBlog = (req, res) => {
+        blogModel.findById(req.params.id, function (err, data) {
+            data.delete = true;
+            data.save();
+            res.json({
+                data: data,
+                status: true,
+                messenger: 'Xoá vĩnh viễn blog ' + data.title + ' thành công.'
+            });
+        })
+    }
+
+    followBlog = (req, res) => {
+
+        const followNew = new followModel();
+        followNew.title = req.query.title;
+        followNew.describe = req.query.describe;
+        followNew.avatar = req.query.avatar;
+        followNew.author = req.query.author;
+        followNew.category = req.query.category;
+        followNew.image = req.query.image;
+        followNew.idUser = req.cookies.idUser;
+        followNew.idBlog = req.query._id;
+        followNew.save();
+
+        res.json({
+            status: true,
+            messenger: 'Theoi dõi blog ' + followNew.title + ' thành công.'
+        });
+    }
+
+    deleteFollowBlog = function (req, res) {
+        followModel.findById(req.params.id, function (err, data) {
+            data.delete();
+            res.json({
+                status: true,
+                messenger: 'Huỷ theo dõi thành công.'
             });
         })
     }
