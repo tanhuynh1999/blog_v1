@@ -1,0 +1,178 @@
+<v-container v-if="userMain !== null">
+    <template>
+        <v-card>
+            <v-toolbar flat color="primary" dark>
+                <v-toolbar-title>Quản lý tài khoản</v-toolbar-title>
+            </v-toolbar>
+            <v-tabs vertical>
+                <v-tab>
+                    <v-icon left>
+                        mdi-account
+                    </v-icon>
+                    Thông tin tài khoản
+                </v-tab>
+                <v-tab>
+                    <v-icon left>
+                        mdi-lock
+                    </v-icon>
+                    Đổi mật khẩu cá nhân
+                </v-tab>
+
+                <v-tab-item>
+                    <v-card flat>
+                        <v-card-text>
+                            <template>
+                                <v-form v-model="infoForm.valid" ref="infoForm">
+                                    <v-container fluid>
+                                        <v-row>
+                                            <v-col sm="3">
+                                                <v-subheader>Tài khoản đăng nhập</v-subheader>
+                                            </v-col>
+                                            <v-col sm="9">
+                                                <v-text-field outlined :placeholder="userMain.userName"
+                                                    v-model="infoForm.value.userName"
+                                                    :rules="infoForm.validate.userName">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col sm="3">
+                                                <v-subheader>Tên hiển thị</v-subheader>
+                                            </v-col>
+                                            <v-col sm="9">
+                                                <v-text-field outlined :rules="infoForm.validate.nameView"
+                                                    :placeholder="userMain.nameView" v-model="infoForm.value.nameView">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col sm="3">
+                                                <v-subheader>Email</v-subheader>
+                                            </v-col>
+                                            <v-col sm="9">
+                                                <v-text-field outlined :rules="infoForm.validate.email"
+                                                    :placeholder="userMain.email" v-model="infoForm.value.email">
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col sm="3">
+                                                <v-subheader>Ngày tạo</v-subheader>
+                                            </v-col>
+                                            <v-col sm="9">
+                                                <b style="margin-top: 20px;" v-text="userMain.dateCreate"></b>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col sm="3">
+                                                <v-subheader>Ngày đăng nhập</v-subheader>
+                                            </v-col>
+                                            <v-col sm="9">
+                                                <b v-text="userMain.dateLogin"></b>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col sm="3">
+                                                <v-subheader>Tình trạng tài khoản</v-subheader>
+                                            </v-col>
+                                            <v-col sm="9">
+                                                <b style="margin-top: 20px;color: #33691E;" v-if="userMain.active"> Đang
+                                                    hoạt động
+                                                </b>
+                                                <b style="margin-top: 20px; color: #B71C1C;"
+                                                    v-if="!userMain.active">Ngừng
+                                                    hoạt
+                                                    động</b>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col sm="3">
+                                                <v-btn @click="editUser" color="#1A237E" depressed dark>
+                                                    <i class="fa fa-save"></i> &nbsp;
+                                                    Cập nhật
+                                                </v-btn>
+                                            </v-col>
+                                            <v-col sm="9">
+
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-form>
+                            </template>
+                        </v-card-text>
+                    </v-card>
+                </v-tab-item>
+                <v-tab-item>
+                    <v-card flat>
+                        <v-card-text>
+                            <v-form v-model="changePasswordForm.valid" ref="changePasswordForm">
+                                <v-container fluid>
+                                    <v-row>
+                                        <v-col sm="3">
+                                            <v-subheader>Mật khẩu cũ</v-subheader>
+                                        </v-col>
+                                        <v-col sm="9">
+                                            <v-text-field
+                                                :append-icon="changePasswordForm.show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                                                :type="changePasswordForm.show1 ? 'text' : 'password'"
+                                                :rules="changePasswordForm.validate.passwordOld"
+                                                v-model="changePasswordForm.value.passwordOld"
+                                                @click:append="changePasswordForm.show1 = !changePasswordForm.show1"
+                                                prepend-inner-icon="fa-key" outlined>
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col sm="3">
+                                            <v-subheader>Mật khẩu mới</v-subheader>
+                                        </v-col>
+                                        <v-col sm="9">
+                                            <v-text-field
+                                                :append-icon="changePasswordForm.show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                                                :type="changePasswordForm.show1 ? 'text' : 'password'"
+                                                :rules="changePasswordForm.validate.passwordNew"
+                                                v-model="changePasswordForm.value.passwordNew"
+                                                @click:append="changePasswordForm.show1 = !changePasswordForm.show1"
+                                                prepend-inner-icon="fa-key" outlined>
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col sm="3">
+                                            <v-subheader>Xác nhận mật khẩu mới:</v-subheader>
+                                        </v-col>
+                                        <v-col sm="9">
+                                            <v-text-field
+                                                :append-icon="changePasswordForm.show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                                                :type="changePasswordForm.show1 ? 'text' : 'password'"
+                                                :rules="changePasswordForm.validate.confirmPassword"
+                                                v-model="changePasswordForm.value.confirmPassword"
+                                                @click:append="changePasswordForm.show1 = !changePasswordForm.show1"
+                                                prepend-inner-icon="fa-key" outlined>
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col sm="3">
+                                            <v-btn @click="changePassword" color="#1A237E" depressed dark>
+                                                <i class="fa fa-save"></i> &nbsp;
+                                                Đổi mật khẩu
+                                            </v-btn>
+                                        </v-col>
+                                        <v-col sm="9">
+
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-form>
+                        </v-card-text>
+                    </v-card>
+                </v-tab-item>
+            </v-tabs>
+        </v-card>
+    </template>
+</v-container>
+<v-container v-if="userMain === null">
+    <p>Vui lòng đăng nhập lại sau khi đã thay đổi thông tin</p>
+</v-container>
+<script src="/script/user/info.js"></script>
