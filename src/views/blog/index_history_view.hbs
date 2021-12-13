@@ -1,7 +1,6 @@
 <v-container v-if="userMain !== null">
-    <h4 v-text="titlePage"></h4>
-    <p>Có tổng cộng <b v-text="countBlog"></b> blog đang theo dõi</p>
-    <v-card outlined class="mt-1" v-if="countBlog == 0">
+    <p>Lịch sử blog đã xem</p>
+    <v-card outlined class="mt-1" v-if="blogList.count == 0">
         <v-img max-width="" max-height="500" src="/content/images/notdata.png"></v-img>
     </v-card>
     <v-card outlined link v-for="(item, i) in blogList.blog" :key="i" class="mt-1">
@@ -19,27 +18,25 @@
                             <v-row align="center" class="mx-0 mt-1">
                                 <v-rating :value="4.5" color="amber" dense half-increments readonly size="14">
                                 </v-rating>
-                                <div class="grey--text ms-4" v-text="item.dateEdit">
-
+                                <div class="grey--text ms-4">
+                                    Lần xem gần nhất:
+                                    <span v-text="item.dateEdit"></span>
                                 </div>
                             </v-row>
                         </v-list-item-content>
                     </v-list-item>
                     <v-card-title style="font-size: 14px">
-                        <span v-text="item.title"></span>
+                        <span v-text="item.titleProduct"></span>
                     </v-card-title>
                     <v-card-text>
                         <i style="color: #B71C1C" v-text="item.category"></i>
                         <div v-text="item.describe"></div>
 
                         <div class="my-4 text-subtitle-1">
-                            <v-chip :href="blogList.linkDetails + item.idBlog + '/' + item.title" small color="#004D40"
-                                dark>
+                            <v-chip :href="blogList.linkDetails + item.idBlog + '/' + item.titleProduct" small
+                                color="#004D40" dark>
                                 <i class="fa fa-eye"></i> &nbsp;
                                 Xem bài viết
-                            </v-chip>
-                            <v-chip small color="#B71C1C" @click="deleteFollowBlog(item._id)" dark>
-                                Huỷ theo dõi
                             </v-chip>
                         </div>
                     </v-card-text>
@@ -55,6 +52,7 @@
     </v-card>
 </v-container>
 <v-container v-if="userMain === null">
-    <h3>Vui lòng đăng nhập để truy cập trang này</h3>
+    <h2>Lịch sử xem blog</h2>
+    <p>Vui lòng đăng nhập để có thể xem lịch sử xem blog</p>
 </v-container>
-<script src="/script/blog/index_follow.js"></script>
+<script src="/script/blog/index_history_view.js"></script>

@@ -11,8 +11,10 @@ const defaultConnect = new Vue({
             userForm: {
                 valid: false,
                 title: 'Đăng nhập',
+                isCheckRegister: false,
                 isLogin: true,
                 show1: false,
+                messageCheck: '',
                 tab: [{
                         name: 'Đăng nhập',
                         value: 'login'
@@ -26,7 +28,8 @@ const defaultConnect = new Vue({
                     email: '',
                     userName: '',
                     nameView: '',
-                    password: ''
+                    password: '',
+                    confirmPassword: ''
                 },
                 validate: {
                     email: [
@@ -44,11 +47,16 @@ const defaultConnect = new Vue({
                     ],
                     password: [
                         v => !!v || 'Mật khẩu không được để trống',
-                    ]
+                    ],
+                    confirmPassword: [
+                        v => !!v || 'Mật khẩu xác nhận không được để trống',
+                        v => v === this.userForm.value.password || 'Xác nhận mật khẩu không khớp.',
+                    ],
                 }
             },
             loginForm: {
                 valid: false,
+                isCheckLogin: false,
                 validate: {
                     userName: [
                         v => !!v || 'Tên đăng nhập không được để trống',
@@ -94,7 +102,7 @@ const defaultConnect = new Vue({
                     ]
                 },
                 select: {
-                    category: ['Câu hỏi và cần trả lời', 'Chia sẻ kinh nghiệm', 'Tin tức', 'Kiến thức'],
+                    category: ['Câu hỏi và cần trả lời', 'Giải trí', 'Chia sẻ kinh nghiệm', 'Tin tức', 'Kiến thức'],
                     tag: ['Gaming', 'Programming', 'Vue', 'Vuetify']
                 }
             },
@@ -113,7 +121,7 @@ const defaultConnect = new Vue({
                 {
                     icon: 'fa-list',
                     name: 'Các danh mục blog',
-                    link: '/',
+                    link: '/category',
                     active: false
                 },
                 {
@@ -139,7 +147,13 @@ const defaultConnect = new Vue({
                     name: 'Phản hồi của bạn',
                     link: '/blog/phan_hoi_cua_ban',
                     active: false
-                }
+                },
+                {
+                    icon: 'fa-history',
+                    name: 'Lịch sử xem blog',
+                    link: '/blog/lich_su_xem_blog',
+                    active: false
+                },
             ],
             userMain: {},
             drawer: false,

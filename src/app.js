@@ -10,6 +10,7 @@ const {
 const homeRouter = require('./routes/homeRouter');
 const userRouter = require('./routes/userRouter');
 const blogRouter = require('./routes/blogRouter');
+const categoryRouter = require('./routes/categoryRouter');
 
 const app = express();
 const port = 3000;
@@ -30,6 +31,7 @@ app.use(express.static(__dirname + '/public'));
 app.use('', homeRouter);
 app.use('', userRouter);
 app.use('', blogRouter);
+app.use('', categoryRouter);
 
 //connect database
 connectDatabase.connect();

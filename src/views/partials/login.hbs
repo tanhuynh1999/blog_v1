@@ -23,9 +23,11 @@
                     <v-text-field :rules="loginForm.validate.userName" v-model="loginForm.value.userName" dense
                         prepend-inner-icon="fa-user" label="Tên đăng nhập" outlined>
                     </v-text-field>
-                    <v-text-field :rules="loginForm.validate.password" v-model="loginForm.value.password" dense
-                        prepend-inner-icon="fa-key" label="Mật khẩu" outlined>
+                    <v-text-field type="password" :rules="loginForm.validate.password"
+                        v-model="loginForm.value.password" dense prepend-inner-icon="fa-key" label="Mật khẩu" outlined>
                     </v-text-field>
+                    <b v-if="loginForm.isCheckLogin" style="color: #B71C1C"><i class="fa fa-bell"></i> Sai tài khoản
+                        hoặc mật khẩu</b>
                     <v-checkbox label="Nhớ mật khẩu"></v-checkbox>
                     <v-btn @click="login()" color="secondary" elevation="2" block>
                         Đăng nhập
@@ -48,8 +50,13 @@
                         v-model="userForm.value.password" @click:append="userForm.show1 = !userForm.show1" dense
                         prepend-inner-icon="fa-key" label="Mật khẩu" outlined>
                     </v-text-field>
-                    <v-text-field dense prepend-inner-icon="fa-keyboard" label="Nhập lại mật khẩu" outlined>
+                    <v-text-field :append-icon="userForm.show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="userForm.show1 ? 'text' : 'password'" :rules="userForm.validate.confirmPassword"
+                        v-model="userForm.value.confirmPassword" @click:append="userForm.show1 = !userForm.show1" dense
+                        prepend-inner-icon="fa-keyboard" label="Nhập lại mật khẩu" outlined>
                     </v-text-field>
+                    <b v-if="userForm.isCheckRegister" style="color: #B71C1C"><i class="fa fa-bell"></i><span
+                            v-text="userForm.messageCheck"></span></b>
                     <v-btn @click="register" color="secondary" elevation="2" block>
                         Đăng ký
                     </v-btn>
@@ -128,7 +135,7 @@
                         </v-list-item-title>
                         <v-list-item-subtitle>Lịch sử xem blog + lịch sử hoạt động</v-list-item-subtitle>
                         <v-list-item-subtitle>
-                            <v-btn elevation="2" block>Blog đã xem</v-btn>
+                            <v-btn elevation="2" href="/blog/lich_su_xem_blog" block>Blog đã xem</v-btn>
                         </v-list-item-subtitle>
                     </v-list-item-content>
                 </v-list-item>

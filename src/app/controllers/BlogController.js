@@ -2,6 +2,7 @@ const blogModel = require('../models/BlogModel');
 const userModel = require('../models/UserModel');
 const tabBlogModel = require('../models/TabBlogModel');
 const followModel = require('../models/FollowModel');
+const historyViewModel = require('../models/HistoryView');
 
 class BlogController {
 
@@ -28,6 +29,10 @@ class BlogController {
 
     indexReply = (req, res) => {
         res.render('blog/index_reply');
+    }
+
+    indexHistoryView = (req, res) => {
+        res.render('blog/index_history_view');
     }
 
     getBlog = (req, res) => {
@@ -99,6 +104,17 @@ class BlogController {
         }
     }
 
+    groupBlogTab = (req, res) => {
+        tabBlogModel.find({}, function (err, data) {
+            res.json({
+                data: data,
+                success: true
+            });
+        }).sort({
+            name: 1
+        })
+    }
+
     getTabBlog = (req, res) => {
         tabBlogModel.find({
             idBlog: req.params.id
@@ -139,8 +155,83 @@ class BlogController {
 
     // POST
 
+    seacrhBlog = (req, res) => {
+        console.log(req.query);
+        blogModel.find({
+            title: {
+                $regex: req.query.key
+            },
+            category: {
+                $regex: req.query.category
+            }
+        }, function (err, data) {
+            res.json({
+                data: data,
+                success: true
+            });
+        }).sort({
+            dateEdit: -1
+        })
+    }
+
+    seacrhBlogCategory = (req, res) => {
+        blogModel.find({
+            category: {
+                $regex: req.query.name
+            }
+        }, function (err, data) {
+            res.json({
+                data: data,
+                success: true
+            });
+        }).sort({
+            dateEdit: -1
+        })
+    }
+
+    searchBlogHot = (req, res) => {
+        console.log(req.query);
+        blogModel.find({
+            title: {
+                $regex: req.query.key
+            },
+            category: {
+                $regex: req.query.category
+            }
+        }, function (err, data) {
+            res.json({
+                data: data,
+                success: true
+            });
+        }).sort({
+            view: -1
+        })
+    }
+
     detailsBlog = (req, res) => {
         blogModel.findById(req.params.id, function (err, data) {
+            if (req.cookies.idUser !== undefined) {
+                historyViewModel.findOne({
+                    idBlog: req.params.id,
+                    idUser: req.cookies.idUser
+                }, function (err, data2) {
+                    if (data2 == null) {
+                        const historyViewNew = new historyViewModel();
+                        historyViewNew.idBlog = req.params.id;
+                        historyViewNew.idUser = req.cookies.idUser;
+                        historyViewNew.titleProduct = data.title;
+                        historyViewNew.author = data.author;
+                        historyViewNew.avatar = data.avatar;
+                        historyViewNew.category = data.category;
+                        historyViewNew.describe = data.describe;
+                        historyViewNew.image = data.image;
+                        historyViewNew.save();
+                    } else {
+                        data2.dateEdit = Date.now();
+                        data2.save();
+                    }
+                })
+            }
             data.view = data.view + 1;
             data.save();
             res.json({

@@ -6,9 +6,10 @@ const app = new Vue({
         return {
             blogList: {
                 linkDetails: '/blog/details/',
-                blog: []
+                blog: [],
+                count: 0
             },
-            titlePage: 'Bài blog đánh dấu',
+            titlePage: 'Lịch sử xem blog',
             countBlog: null,
             //!------------------------
             userForm: defaultConnect.userForm,
@@ -25,20 +26,19 @@ const app = new Vue({
         }
     },
     mounted() {
-        this.loadFollowBlog();
+        this.loadHistoryViewBlog();
         //!------------------------
         this.loadUser();
         this.checkMenu();
     },
     methods: {
-        loadFollowBlog() {
+        loadHistoryViewBlog() {
             let that = this;
-            const link = '/blog/follow/get';
+            const link = '/blog/history_view/get';
             axios.get(link)
                 .then(function (response) {
-                    console.log(response.data.data);
                     that.blogList.blog = response.data.data;
-                    that.countBlog = response.data.data.length;
+                    that.blogList.count = response.data.data.length;
                 })
         },
         deleteFollowBlog(id) {
@@ -89,10 +89,6 @@ const app = new Vue({
                         console.log(response);
                         if (response.data.status) {
                             location.reload();
-                        } else {
-                            that.checkSnackbar(true, response.data.message, 'error');
-                            that.userForm.isCheckRegister = true;
-                            that.userForm.messageCheck = response.data.message;
                         }
                     })
             }
@@ -112,9 +108,6 @@ const app = new Vue({
                         console.log(response);
                         if (response.data.status) {
                             location.reload();
-                        } else {
-                            that.checkSnackbar(true, response.data.message, 'error');
-                            that.loginForm.isCheckLogin = true;
                         }
                     })
             }

@@ -6,10 +6,22 @@ const app = new Vue({
         return {
             blogList: {
                 linkDetails: '/blog/details/',
+                count: 0,
                 blog: []
             },
-            titlePage: 'Bài blog đánh dấu',
-            countBlog: null,
+            searchForm: {
+                valid: false,
+                value: {
+                    key: '',
+                    category: ''
+                }
+            },
+            tabList: {
+                tab: []
+            },
+            titlePage: 'Các danh mục blog',
+            isLoading: true,
+            textDefault: 'Tất cả blog',
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
@@ -25,34 +37,52 @@ const app = new Vue({
         }
     },
     mounted() {
-        this.loadFollowBlog();
+        this.loadBlog();
+        this.loadTag();
         //!------------------------
         this.loadUser();
         this.checkMenu();
     },
     methods: {
-        loadFollowBlog() {
+        loadBlog() {
             let that = this;
-            const link = '/blog/follow/get';
+            const link = '/blog/get/index';
             axios.get(link)
                 .then(function (response) {
                     console.log(response.data.data);
                     that.blogList.blog = response.data.data;
-                    that.countBlog = response.data.data.length;
+                    that.blogList.count = response.data.data.length;
+                    that.isLoading = false;
                 })
         },
-        deleteFollowBlog(id) {
+        ckickLoadBlog() {
             let that = this;
-            const link = '/blog/follow/delete/' + id;
-
-            axios.post(link)
-                .then(function (response) {
-                    // handle success
-                    console.log(response);
-                    if (response.data.status) {
-                        that.checkSnackbar(true, response.data.messenger, null);
-                        that.loadFollowBlog();
+            that.textDefault = 'Tất cả blog';
+            that.loadBlog();
+        },
+        searchCategory(item) {
+            let that = this;
+            const link = '/blog/search/category';
+            that.isLoading = true;
+            axios.post(link, null, {
+                    params: {
+                        name: item,
                     }
+                })
+                .then(function (response) {
+                    that.blogList.blog = response.data.data;
+                    that.blogList.count = response.data.data.length;
+                    that.isLoading = false;
+                    that.textDefault = 'Danh mục: ' + item
+                })
+        },
+        loadTag() {
+            let that = this;
+            const link = '/blog/tag/group';
+            axios.get(link)
+                .then(function (response) {
+                    console.log(response.data.data);
+                    that.tabList.tab = response.data.data;
                 })
         },
         //!------------------------
@@ -150,7 +180,7 @@ const app = new Vue({
                             that.checkSnackbar(true, response.data.messenger, null);
                             that.dialogCreateBlog = false;
                             that.$refs.blogForm.reset();
-                            document.location.href = '/blog/blog_da_dang';
+                            that.loadBlog();
                         }
                     })
             }

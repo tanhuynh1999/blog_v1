@@ -6,9 +6,21 @@ const app = new Vue({
         return {
             blogList: {
                 linkDetails: '/blog/details/',
+                count: 0,
                 blog: []
             },
+            searchForm: {
+                valid: false,
+                value: {
+                    key: '',
+                    category: ''
+                }
+            },
+            tabList: {
+                tab: []
+            },
             titlePage: 'Bài blog hot nhất',
+            isLoading: true,
             //!------------------------
             userForm: defaultConnect.userForm,
             userMain: defaultConnect.userMain,
@@ -37,6 +49,33 @@ const app = new Vue({
                 .then(function (response) {
                     console.log(response.data.data);
                     that.blogList.blog = response.data.data;
+                    that.blogList.count = response.data.data.length;
+                    that.loadTag();
+                    that.isLoading = false;
+                })
+        },
+        search() {
+            let that = this;
+            const link = '/blog/search/hot';
+            that.isLoading = true;
+            const data = JSON.parse(JSON.stringify(that.searchForm.value));
+            console.log(that.searchForm.value);
+            axios.post(link, null, {
+                    params: data
+                })
+                .then(function (response) {
+                    that.blogList.blog = response.data.data;
+                    that.blogList.count = response.data.data.length;
+                    that.isLoading = false;
+                })
+        },
+        loadTag() {
+            let that = this;
+            const link = '/blog/tag/group';
+            axios.get(link)
+                .then(function (response) {
+                    console.log(response.data.data);
+                    that.tabList.tab = response.data.data;
                 })
         },
         //!------------------------
@@ -73,6 +112,10 @@ const app = new Vue({
                         console.log(response);
                         if (response.data.status) {
                             location.reload();
+                        } else {
+                            that.checkSnackbar(true, response.data.message, 'error');
+                            that.userForm.isCheckRegister = true;
+                            that.userForm.messageCheck = response.data.message;
                         }
                     })
             }
@@ -92,6 +135,9 @@ const app = new Vue({
                         console.log(response);
                         if (response.data.status) {
                             location.reload();
+                        } else {
+                            that.checkSnackbar(true, response.data.message, 'error');
+                            that.loginForm.isCheckLogin = true;
                         }
                     })
             }

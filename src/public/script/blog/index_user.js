@@ -191,6 +191,10 @@ const app = new Vue({
                         console.log(response);
                         if (response.data.status) {
                             location.reload();
+                        } else {
+                            that.checkSnackbar(true, response.data.message, 'error');
+                            that.userForm.isCheckRegister = true;
+                            that.userForm.messageCheck = response.data.message;
                         }
                     })
             }
@@ -210,6 +214,9 @@ const app = new Vue({
                         console.log(response);
                         if (response.data.status) {
                             location.reload();
+                        } else {
+                            that.checkSnackbar(true, response.data.message, 'error');
+                            that.loginForm.isCheckLogin = true;
                         }
                     })
             }

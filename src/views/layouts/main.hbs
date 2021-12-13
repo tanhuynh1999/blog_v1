@@ -36,8 +36,23 @@
                     {{> create_blog}}
                 </v-spacer>
 
-                <v-responsive max-width="156">
-
+                <v-responsive max-width="300">
+                    <div class="float-right">
+                        <v-btn icon>
+                            <v-icon>fa-question-circle</v-icon>
+                        </v-btn>
+                        <v-btn icon>
+                            <v-icon>fa-list</v-icon>
+                        </v-btn>
+                        <v-btn icon>
+                            <v-icon>fa-tags</v-icon>
+                        </v-btn>
+                        <v-btn icon>
+                            <v-avatar>
+                                <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John">
+                            </v-avatar>
+                        </v-btn>
+                    </div>
                 </v-responsive>
             </v-app-bar>
 
@@ -54,7 +69,8 @@
 
                 <v-sheet color="grey lighten-5" height="72" width="100%">
                     <center style="line-height: 72px;">
-                        <h1 class="ml-5">BlogVietNam.VN</h1>
+                        <h1 style="cursor: pointer;" class="ml-5" onclick="window.location.href ='/'">BlogVietNam.VN
+                        </h1>
                     </center>
                 </v-sheet>
 

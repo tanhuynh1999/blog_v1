@@ -1,0 +1,101 @@
+<v-container>
+    <v-row>
+        <v-col cols="6">
+            <v-card color="#385F73" dark>
+                <v-card-title class="text-h5">
+                    Tất cả bài blog mới nhất
+                </v-card-title>
+
+                <v-card-subtitle>
+                    Tất cả blog mới nhất <b v-text="item"></b>
+                </v-card-subtitle>
+
+                <v-card-actions>
+                    <v-btn text @click="ckickLoadBlog()">
+                        Tìm kiếm
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+            <v-card class="mt-1" v-for="(item, i) in blogForm.select.category" :key="i" color="#385F73" dark>
+                <v-card-title class="text-h5">
+                    <span v-text="item"></span>
+                </v-card-title>
+
+                <v-card-subtitle>
+                    Xem các bài blog thuộc chủ đề <b v-text="item"></b>
+                </v-card-subtitle>
+
+                <v-card-actions>
+                    <v-btn text @click="searchCategory(item)">
+                        Tìm kiếm
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-col>
+        <v-col cols="6">
+            <template>
+                <h4><span v-text="textDefault"></span> (<span v-text="blogList.count"></span>)</h4>
+                <p v-if="blogList.count == 0">Không có bài blog nào từ danh mục này</p>
+                <v-card v-scroll.self="onScroll" class="overflow-y-auto" max-height="1500">
+                    <div v-if="isLoading">
+                        <v-card outlined link v-for="(item, i) in 6" :key="i" class="mt-1"
+                            :href="blogList.linkDetails + item._id + '/' + item.title">
+                            <v-container>
+                                <v-skeleton-loader class="mx-auto" type="card"></v-skeleton-loader>
+                            </v-container>
+                        </v-card>
+                    </div>
+                    <v-card outlined link v-for="(item, i) in blogList.blog" :key="i" class="mt-1"
+                        :href="blogList.linkDetails + item._id + '/' + item.title">
+                        <v-container>
+                            <v-row>
+                                <v-col sm="9">
+                                    <v-list-item>
+                                        <v-list-item-content>
+                                            <v-list-item-title>
+                                                <v-avatar size="40">
+                                                    <img :src="item.avatar" alt="John">
+                                                </v-avatar>
+                                                <span style="font-size: 15px">Tác giả: <span
+                                                        v-text="item.author"></span></span>
+                                            </v-list-item-title>
+                                            <v-row align="center" class="mx-0 mt-1">
+                                                <v-rating :value="4.5" color="amber" dense half-increments readonly
+                                                    size="14">
+                                                </v-rating>
+                                                <div class="grey--text ms-4" v-text="item.dateEdit">
+
+                                                </div>
+                                            </v-row>
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                    <v-card-title style="font-size: 14px">
+                                        <span v-text="item.title"></span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <i style="color: #B71C1C" v-text="item.category"></i>
+
+                                        <div class="my-4 text-subtitle-1">
+                                            <v-chip-group active-class="primary--text" column>
+                                                <v-chip small v-for="tag in tabList.tab" v-if="item._id == tag.idBlog">
+                                                    <span v-text="tag.name"></span>
+                                                </v-chip>
+                                            </v-chip-group>
+                                        </div>
+                                    </v-card-text>
+                                </v-col>
+                                <v-col cols="12" sm="3">
+                                    <v-avatar class="ma-3" size="125" tile>
+                                        <v-img width="100%" :src="item.image">
+                                        </v-img>
+                                    </v-avatar>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-card>
+                </v-card>
+            </template>
+        </v-col>
+    </v-row>
+</v-container>
+<script src="/script/category/index.js"></script>

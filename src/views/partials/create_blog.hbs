@@ -1,6 +1,6 @@
 <v-dialog v-model="dialogCreateBlog" persistent>
     <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on" x-large color="primary" dark>
+        <v-btn v-bind="attrs" v-on="on" color="primary" dark>
             <i class="fa fa-edit"></i>
             Viết blog
         </v-btn>
@@ -78,3 +78,6 @@
         </v-card-actions>
     </v-card>
 </v-dialog>
+<v-btn depressed href="/blog/blog_da_dang">
+    Quản lý blog cá nhân
+</v-btn>
